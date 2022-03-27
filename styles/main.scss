@@ -1,0 +1,23 @@
+body {
+    margin: 0;
+}
+div.main {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    >div.key_list {
+        display: flex;
+        > div.key {
+            width: 40px;
+            height: 40px;
+            border: 3px solid black;
+            border-radius: .4rem;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+        }
+    }
+}
