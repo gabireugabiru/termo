@@ -428,6 +428,8 @@ dependencies = [
  "getrandom",
  "gloo-console",
  "rand",
+ "wasm-bindgen",
+ "web-sys",
  "yew",
  "yew-router",
 ]

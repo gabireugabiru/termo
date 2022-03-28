@@ -11,4 +11,6 @@ yew-router='0.16.0'
 gloo-console = '0.2.1'
 rand = "0.8.5"
 getrandom = { version = "0.2", features = ["js"] }
+web-sys = "0.3.56"
+wasm-bindgen = "0.2.79"
 

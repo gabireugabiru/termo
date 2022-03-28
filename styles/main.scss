@@ -19,5 +19,8 @@ div.main {
             place-items: center;
             cursor: pointer;
         }
+        > div.selected {
+            background:red;
+        }
     }
 }

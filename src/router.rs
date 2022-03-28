@@ -1,6 +1,6 @@
-use yew_router::Routable;
-use yew::{html, Html};
 use crate::main_app::MainApp;
+use yew::{html, Html};
+use yew_router::Routable;
 
 #[derive(Routable, PartialEq, Debug, Clone)]
 pub enum AppRouter {
@@ -10,6 +10,6 @@ pub enum AppRouter {
 
 pub fn switch(route: &AppRouter) -> Html {
     match route {
-        &AppRouter::Home => html!{ <MainApp />},
+        &AppRouter::Home => html! { <MainApp />},
     }
 }
