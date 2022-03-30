@@ -1,5 +1,7 @@
 body {
     margin: 0;
+    background: #313141;
+    color: #ccc;
 }
 div.main {
     width: 100%;
@@ -11,16 +13,53 @@ div.main {
     >div.key_list {
         display: flex;
         > div.key {
-            width: 40px;
-            height: 40px;
-            border: 3px solid black;
+            font-size: 2rem;
+            font-weight: bolder;
+            width: 90px;
+            height: 90px;
+            border: 3px solid #88a;
             border-radius: .4rem;
             display: grid;
             place-items: center;
             cursor: pointer;
+            margin: .3rem;
+            position: relative;
+        }
+
+        > div.not_contain {
+            background: #b85b54;
+            border-color: #b85b54;
+
+        }
+        > div.contain {
+            background: #a6a14b;
+            border-color: #a6a14b;
+        }
+        > div.exact {
+            background: green;
         }
         > div.selected {
-            background:red;
+            animation: appear 200ms;
+        }
+        div.selected::before {
+            content: " ";
+            position: absolute;
+            width: 90%;
+            height: 3px;
+            background: #88a;
+            bottom: 4px;
+            padding: 2px;
+        }
+        @keyframes appear {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
     }
 }
