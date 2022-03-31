@@ -1,11 +1,10 @@
-use std::vec;
-
 use rand::Rng;
+use wasm_bindgen::{prelude::Closure, JsCast};
+use web_sys::MouseEvent;
 use yew::{
   function_component, html, use_effect_with_deps, use_reducer, Children,
   ContextProvider, Properties, Reducible, UseReducerHandle,
 };
-use yew_router::history::History;
 
 use crate::WORDS;
 #[derive(PartialEq, Properties)]
@@ -19,6 +18,8 @@ pub struct WordsContextInfo {
   pub columns: Vec<Vec<char>>,
   pub selected: (usize, usize),
   pub completed: Vec<bool>,
+  pub finished: bool,
+  pub win: bool,
 }
 impl WordsContextInfo {
   pub fn is_last(&self) -> bool {
@@ -33,12 +34,38 @@ impl WordsContextInfo {
       false
     }
   }
+  pub fn from(height: usize) -> Self {
+    let random = rand::thread_rng().gen_range(0..WORDS.len());
+    let word = WORDS[random].to_owned();
+    let rows = word.len();
+    let mut column_vec = Vec::new();
+    let mut row_vec = Vec::new();
+    let mut completed = Vec::new();
+    for _ in 0..rows {
+      row_vec.push(' ');
+    }
+    for _ in 0..height {
+      column_vec.push(row_vec.clone());
+      completed.push(false);
+    }
+
+    WordsContextInfo {
+      columns: column_vec,
+      height,
+      word,
+      completed,
+      win: false,
+      finished: false,
+      selected: (0, 0),
+    }
+  }
 }
 pub enum WordAction {
   Push(char),
   Back,
   New,
   SetColumn(usize),
+  Reset,
 }
 
 impl Reducible for WordsContextInfo {
@@ -70,16 +97,21 @@ impl Reducible for WordsContextInfo {
             guess.push(*i);
           }
 
-          // let guess = guess
-          if new_data.selected.0 == self.height || guess == self.word {
-            let window = web_sys::window().unwrap();
-            window.alert_with_message("game ended".into());
+          if guess == self.word {
+            new_data.finished = true;
+            new_data.win = true;
+          } else if new_data.selected.0 == self.height {
+            new_data.finished = true;
+            new_data.win = false;
           }
           new_data.selected.1 = 0;
         }
       }
       Self::Action::SetColumn(i) => {
         new_data.selected.1 = i;
+      }
+      Self::Action::Reset => {
+        new_data = WordsContextInfo::from(5);
       }
     };
     new_data.into()
@@ -90,33 +122,33 @@ pub type WordsContextType = UseReducerHandle<WordsContextInfo>;
 
 #[function_component(WordsContext)]
 pub fn context(Props { children }: &Props) -> Html {
-  let state = use_reducer(|| {
-    let columns = 4;
-    let random = rand::thread_rng().gen_range(0..WORDS.len());
-    let word = WORDS[random].to_owned();
-    let rows = word.len();
-    let mut column_vec = Vec::new();
-    let mut row_vec = Vec::new();
-    let mut completed = Vec::new();
-    for _ in 0..rows {
-      row_vec.push(' ');
-    }
-    for _ in 0..columns {
-      column_vec.push(row_vec.clone());
-      completed.push(false);
-    }
+  let state = use_reducer(|| WordsContextInfo::from(5));
 
-    WordsContextInfo {
-      columns: column_vec,
-      height: columns,
-      word,
-      completed,
-      selected: (0, 0),
-    }
-  });
-  {
-    use_effect_with_deps(|i| || {}, state.clone())
-  }
+  // use_effect_with_deps(
+  //   |_| {
+  //     let listener =
+  //       Closure::<dyn Fn(MouseEvent)>::wrap(Box::new(move |ev| {
+  //         ev.prevent_default();
+  //       }));
+  //     let window = web_sys::window().unwrap();
+  //     window
+  //       .add_event_listener_with_callback(
+  //         "contextmenu",
+  //         listener.as_ref().unchecked_ref(),
+  //       )
+  //       .unwrap();
+
+  //     move || {
+  //       window
+  //         .remove_event_listener_with_callback(
+  //           "contextmenu",
+  //           listener.as_ref().unchecked_ref(),
+  //         )
+  //         .unwrap();
+  //     }
+  //   },
+  //   (),
+  // );
   html! {
     <ContextProvider<WordsContextType> context={state.clone()}>
       {for children.iter()}

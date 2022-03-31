@@ -1,4 +1,4 @@
-use crate::context::WordsContext;
+use crate::{context::WordsContext, popup::PopUpContext};
 use router::{switch, AppRouter};
 use yew::function_component;
 use yew::html;
@@ -6,18 +6,22 @@ use yew_router::{BrowserRouter, Switch};
 mod context;
 mod key;
 mod main_app;
+mod popup;
 mod router;
 mod row;
 
-pub const WORDS: [&str; 3] = ["teste", "online", "doismilevinte"];
+pub const WORDS: [&str; 5] =
+  ["teste", "online", "caralho", "joaoralho", "senhoralho"];
 
 #[function_component(Main)]
 fn app() -> Html {
   html! {
     <WordsContext>
-      <BrowserRouter>
-        <Switch<AppRouter> render={Switch::render(switch)} />
-      </BrowserRouter>
+      <PopUpContext>
+        <BrowserRouter>
+         <Switch<AppRouter> render={Switch::render(switch)} />
+        </BrowserRouter>
+      </PopUpContext>
     </WordsContext>
 
 
