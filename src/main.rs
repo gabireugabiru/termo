@@ -30,6 +30,25 @@ pub fn get_char_count(word: Vec<char>) -> HashMap<char, u32> {
   }
   hash
 }
+pub fn exact_char_count(
+  word: Vec<char>,
+  entered: Vec<char>,
+) -> HashMap<char, u32> {
+  let mut hash = HashMap::new();
+  for (i, c) in entered.iter().enumerate() {
+    if *c == word[i] {
+      match hash.clone().get(c) {
+        Some(a) => {
+          hash.insert(*c, a + 1);
+        }
+        None => {
+          hash.insert(*c, 1);
+        }
+      }
+    }
+  }
+  hash
+}
 
 #[function_component(Main)]
 fn app() -> Html {
