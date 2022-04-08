@@ -19,12 +19,20 @@ pub fn component() -> Html {
         let listener =
           Closure::<dyn Fn(KeyboardEvent)>::wrap(Box::new(move |ev| {
             let key = ev.key();
+
+            gloo_console::log!(format!("{}", key));
             match key.as_str() {
               "Backspace" => {
                 word_info.dispatch(WordAction::Back);
               }
               "Enter" => {
                 word_info.dispatch(WordAction::New);
+              }
+              "ArrowLeft" => {
+                word_info.dispatch(WordAction::Move(-1));
+              }
+              "ArrowRight" => {
+                word_info.dispatch(WordAction::Move(1));
               }
               _ => {
                 if key.len() == 1 {

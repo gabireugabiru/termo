@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use rand::Rng;
 use wasm_bindgen::{prelude::Closure, JsCast};
 use web_sys::MouseEvent;
@@ -6,7 +8,7 @@ use yew::{
   ContextProvider, Properties, Reducible, UseReducerHandle,
 };
 
-use crate::WORDS;
+use crate::{get_char_count, WORDS};
 #[derive(PartialEq, Properties)]
 pub struct Props {
   pub children: Children,
@@ -14,6 +16,7 @@ pub struct Props {
 #[derive(Clone, PartialEq)]
 pub struct WordsContextInfo {
   pub word: String,
+  pub word_char_counts: HashMap<char, u32>,
   pub height: usize,
   pub columns: Vec<Vec<char>>,
   pub selected: (usize, usize),
@@ -37,6 +40,7 @@ impl WordsContextInfo {
   pub fn from(height: usize) -> Self {
     let random = rand::thread_rng().gen_range(0..WORDS.len());
     let word = WORDS[random].to_owned();
+    let word_char_counts = get_char_count(word.chars().collect());
     let rows = word.len();
     let mut column_vec = Vec::new();
     let mut row_vec = Vec::new();
@@ -52,6 +56,7 @@ impl WordsContextInfo {
     WordsContextInfo {
       columns: column_vec,
       height,
+      word_char_counts,
       word,
       completed,
       win: false,
@@ -65,6 +70,7 @@ pub enum WordAction {
   Back,
   New,
   SetColumn(usize),
+  Move(i8),
   Reset,
 }
 
@@ -84,18 +90,31 @@ impl Reducible for WordsContextInfo {
       }
       Self::Action::Back => {
         if self.selected.1 > 0 {
-          new_data.columns[self.selected.0][self.selected.1 - 1] = ' ';
-          new_data.selected.1 -= 1;
+          gloo_console::log!(format!(
+            "{}, {}",
+            self.selected.1,
+            self.word.len()
+          ));
+          let r#char = if self.selected.1 == self.word.len() {
+            ' '
+          } else {
+            self.columns[self.selected.0][self.selected.1]
+          };
+          if r#char == ' ' {
+            new_data.columns[self.selected.0][self.selected.1 - 1] = ' ';
+            new_data.selected.1 -= 1;
+          } else {
+            new_data.columns[self.selected.0][self.selected.1] = ' ';
+          }
         }
       }
       Self::Action::New => {
         if self.is_last() {
           new_data.completed[self.selected.0] = true;
           new_data.selected.0 += 1;
-          let mut guess = String::new();
-          for i in &self.columns[self.selected.0] {
-            guess.push(*i);
-          }
+
+          let guess =
+            self.columns[self.selected.0].iter().collect::<String>();
 
           if guess == self.word {
             new_data.finished = true;
@@ -109,6 +128,17 @@ impl Reducible for WordsContextInfo {
       }
       Self::Action::SetColumn(i) => {
         new_data.selected.1 = i;
+      }
+      Self::Action::Move(s) => {
+        if s < 0 {
+          if self.selected.1 > 0 {
+            new_data.selected.1 -= 1;
+          }
+        } else {
+          if self.selected.1 < self.word.len() {
+            new_data.selected.1 += 1;
+          }
+        }
       }
       Self::Action::Reset => {
         new_data = WordsContextInfo::from(5);

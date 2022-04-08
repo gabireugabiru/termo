@@ -77,7 +77,7 @@ pub fn context(Props { children }: &Props) -> Html {
   let reset_game = {
     let word_info = word_info.clone();
     let state = state.clone();
-    Callback::from(move |ev| {
+    Callback::from(move |_| {
       state.dispatch(PopUpAction::Close);
       word_info.dispatch(WordAction::Reset);
     })
